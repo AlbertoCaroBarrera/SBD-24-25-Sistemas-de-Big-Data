@@ -129,3 +129,127 @@ def obtener_registros_mayores(db, atributo, valor):
     
     # Convertimos los registros a una lista y los devolvemos
     return list(registros)
+
+def obtener_registros_condicion_u_otra(db, filtros):
+    """Obtiene registros que cumplan al menos una de las condiciones proporcionadas."""
+    coleccion = db['Pacientes']
+    
+    # Usamos el operador $or para combinar las condiciones
+    filtro_or = {"$or": filtros}
+    
+    registros = coleccion.find(filtro_or)
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+def obtener_registros_no_cumple_condicion(db, atributo, valor):
+    """Obtiene registros que no cumplen con una condición específica."""
+    coleccion = db['Pacientes']
+    
+    # Usamos el operador $ne para obtener documentos donde el atributo no es igual al valor
+    filtro = {atributo: {"$ne": valor}}
+    
+    registros = coleccion.find(filtro)
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+
+def eliminar_registro(db, filtro):
+    """Eliminar un registro de la colección 'Pacientes' basado en un filtro."""
+    coleccion = db['Pacientes']
+    
+    # Usamos delete_one para eliminar un único documento que coincida con el filtro
+    resultado = coleccion.delete_one(filtro)
+    
+    # Retornamos el número de documentos eliminados (debería ser 1 si se elimina correctamente)
+    return resultado.deleted_count
+
+def eliminar_varios_registros(db, filtro):
+    """Eliminar varios registros de la colección 'Pacientes' basado en un filtro."""
+    coleccion = db['Pacientes']
+    
+    # Usamos delete_many para eliminar todos los documentos que coincidan con el filtro
+    resultado = coleccion.delete_many(filtro)
+    
+    # Retornamos el número de documentos eliminados
+    return resultado.deleted_count
+
+def obtener_registros_ordenados(db, atributo):
+    """Obtener todos los registros de la colección 'Pacientes' ordenados de forma ascendente por un atributo."""
+    coleccion = db['Pacientes']
+    
+    # Usamos find() para obtener todos los registros y sort() para ordenarlos
+    registros = coleccion.find().sort(atributo, 1)  # 1 es para orden ascendente, -1 sería descendente
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+
+def obtener_registros_ordenados_descendente(db, atributo):
+    """Obtener todos los registros de la colección 'Pacientes' ordenados de forma descendente por un atributo."""
+    coleccion = db['Pacientes']
+    
+    # Usamos find() para obtener todos los registros y sort() para ordenarlos de manera descendente
+    registros = coleccion.find().sort(atributo, -1)  # -1 es para orden descendente, 1 sería ascendente
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+def obtener_primeros_10_registros(db):
+    """Obtener los primeros 10 registros de la colección 'Pacientes'."""
+    coleccion = db['Pacientes']
+    
+    # Usamos find() para obtener los registros y limit(10) para limitar el número de registros a 10
+    registros = coleccion.find().limit(10)
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+
+def obtener_registros_por_regex(db, campo, patron):
+    """Obtener registros filtrados por una expresión regular."""
+    coleccion = db['Pacientes']
+    
+    # Usamos el operador $regex para realizar la búsqueda con el patrón proporcionado
+    filtro = {campo: {"$regex": patron, "$options": "i"}}  # $options: "i" es para búsqueda insensible a mayúsculas/minúsculas
+    
+    registros = coleccion.find(filtro)
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+def obtener_enfermedades_por_sintomas(db, lista_sintomas):
+    """Obtiene todas las enfermedades que contengan al menos uno de los síntomas especificados."""
+    coleccion = db['Enfermedades']
+    
+    # Usamos el operador $in para filtrar por los síntomas presentes en el array
+    filtro = {"sintomas": {"$in": lista_sintomas}}  # Filtra por síntomas en la lista proporcionada
+    
+    # Ejecutamos la consulta
+    registros = coleccion.find(filtro)
+    
+    # Convertimos los registros a una lista y los devolvemos
+    return list(registros)
+
+
+
+
+# Coleccion extra de enfermedades para hacer ejercicio de arrays
+def insertar_enfermedad(db, nombre, descripcion, sintomas, tratamiento=None):
+    """Insertar una nueva enfermedad en la colección 'Enfermedades'."""
+    coleccion = db["Enfermedades"]
+    
+    # Creamos el documento de la enfermedad
+    enfermedad = {
+        "nombre": nombre,
+        "descripcion": descripcion,
+        "sintomas": sintomas,  # síntomas debe ser una lista (array)
+        "tratamiento": tratamiento
+    }
+    
+    # Insertamos el documento en la colección
+    resultado = coleccion.insert_one(enfermedad)
+    
+    # Retornamos el ID del documento insertado
+    return resultado.inserted_id

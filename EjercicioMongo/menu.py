@@ -23,9 +23,18 @@ def mostrar_menu():
         print("8. Obtener pacientes sin un atributo específico")
         print("9. Obtener pacientes por lista de valores en un atributo")
         print("10. Obtener pacientes con un atributo numérico mayor que el valor especificado")
-        print("11. Salir")
+        print("11. Obtener pacientes con condición 'u otra' (operador OR)")
+        print("12. Obtener pacientes que no cumplan una condición específica")
+        print("13. Eliminar un registro de la colección")
+        print("14. Eliminar varios registros de la colección")
+        print("15. Realiza una búsqueda y ordénala de forma ascendente")
+        print("16. Realiza una búsqueda y ordénala de forma descendente")
+        print("17. Realiza una búsqueda limitada a 10 registros")
+        print("18. Realizar una búsqueda por expresión regular")
+        print("19. Obtener enfermedades con sintomas indicados")
+        print("21. Insertar una nueva enfermedad")
+        print("22. Salir")
         print()
-        
         opcion = input("Seleccione una opción: ")
 
         if opcion == '1':
@@ -224,8 +233,196 @@ def mostrar_menu():
                 print(f"No se encontraron pacientes con el atributo '{atributo}' mayor que {valor}.")
         
         elif opcion == '11':
+            print("Obtener pacientes con condición 'u otra' (operador OR)")
+
+            # Solicitar los filtros (atributo y valor) para las condiciones
+            filtros = []
+            while True:
+                atributo = input("Ingrese el atributo (por ejemplo, 'edad', 'nombre', etc.) para una condición: ")
+                valor = input(f"Ingrese el valor para el atributo '{atributo}': ")
+
+                # Convierte el valor a int si es un número (por ejemplo, edad)
+                if atributo == "edad":
+                    valor = int(valor)
+
+                # Añadir la condición a la lista de filtros
+                filtros.append({atributo: valor})
+                
+                continuar = input("¿Desea agregar otra condición (sí/no)? ")
+                if continuar.lower() != 'sí' and continuar.lower() != 'si':
+                    break
+
+            # Llamar a la función para obtener los registros con la condición OR
+            pacientes = obtener_registros_condicion_u_otra(db, filtros)
+
+            if pacientes:
+                print(f"Se encontraron {len(pacientes)} pacientes que cumplen al menos una de las condiciones:")
+                for paciente in pacientes:
+                    print(paciente)
+            else:
+                print("No se encontraron pacientes que cumplan con las condiciones.")
+                
+        elif opcion == '12':
+            print("Obtener pacientes que no cumplan una condición específica")
+
+            # Solicitar el atributo y valor para el filtro
+            atributo = input("Ingrese el atributo (por ejemplo, 'edad', 'nombre', etc.): ")
+            valor = input(f"Ingrese el valor para el atributo '{atributo}' que no debe coincidir: ")
+
+            # Convertir el valor a int si es un número (por ejemplo, edad)
+            if atributo == "edad":
+                valor = int(valor)
+
+            # Llamar a la función para obtener los registros que no cumplan con la condición
+            pacientes = obtener_registros_no_cumple_condicion(db, atributo, valor)
+
+            if pacientes:
+                print(f"Se encontraron {len(pacientes)} pacientes que no cumplen con la condición {atributo} != {valor}:")
+                for paciente in pacientes:
+                    print(paciente)
+            else:
+                print(f"No se encontraron pacientes que no cumplan con la condición {atributo} != {valor}.")
+        
+        elif opcion == '13':
+            print("Eliminar un registro de la colección")
+
+            # Solicitar los datos para identificar el registro a eliminar
+            nombre_filtro = input("Ingrese el nombre del paciente que desea eliminar: ")
+
+            # Crear el filtro para encontrar el paciente por nombre
+            filtro = {"nombre": nombre_filtro}
+            
+            # Llamar a la función de eliminación
+            registros_eliminados = eliminar_registro(db, filtro)
+            
+            if registros_eliminados > 0:
+                print(f"{registros_eliminados} paciente(s) eliminado(s).")
+            else:
+                print(f"No se encontró ningún paciente con el nombre '{nombre_filtro}' o ya fue eliminado.")
+        
+        elif opcion == '14':
+            print("Eliminar varios registros de la colección")
+
+            # Solicitar el filtro para eliminar los registros
+            atributo_filtro = input("Ingrese el atributo por el que desea filtrar (por ejemplo, 'edad', 'nombre'): ")
+            valor_filtro = input(f"Ingrese el valor para filtrar por {atributo_filtro}: ")
+            
+            if atributo_filtro == 'edad':
+                # Si el atributo es 'edad', convertimos el valor a entero
+                valor_filtro = int(valor_filtro)
+            
+            # Crear el filtro para eliminar varios registros
+            filtro = {atributo_filtro: valor_filtro}
+            
+            # Llamar a la función para eliminar los registros
+            registros_eliminados = eliminar_varios_registros(db, filtro)
+            
+            if registros_eliminados > 0:
+                print(f"{registros_eliminados} paciente(s) eliminado(s).")
+            else:
+                print(f"No se encontraron pacientes con el filtro '{atributo_filtro}: {valor_filtro}' o ya fueron eliminados.")
+        
+        elif opcion == '15':
+            print("Realizar una búsqueda y ordenarla de forma ascendente")
+
+            # Solicitar al usuario el atributo por el que desea ordenar
+            atributo_ordenar = input("Ingrese el atributo por el cual desea ordenar (por ejemplo, 'edad', 'nombre', etc.): ")
+
+            # Obtener los registros ordenados
+            registros_ordenados = obtener_registros_ordenados(db, atributo_ordenar)
+            
+            if registros_ordenados:
+                print(f"Se encontraron {len(registros_ordenados)} pacientes ordenados por {atributo_ordenar} de forma ascendente:")
+                for paciente in registros_ordenados:
+                    print(paciente)
+            else:
+                print(f"No se encontraron pacientes con el atributo '{atributo_ordenar}'.")
+        
+        elif opcion == '16':
+            print("Realizar una búsqueda y ordenarla de forma descendente")
+
+            # Solicitar al usuario el atributo por el que desea ordenar
+            atributo_ordenar = input("Ingrese el atributo por el cual desea ordenar (por ejemplo, 'edad', 'nombre', etc.): ")
+
+            # Obtener los registros ordenados de manera descendente
+            registros_ordenados_descendente = obtener_registros_ordenados_descendente(db, atributo_ordenar)
+            
+            if registros_ordenados_descendente:
+                print(f"Se encontraron {len(registros_ordenados_descendente)} pacientes ordenados por {atributo_ordenar} de forma descendente:")
+                for paciente in registros_ordenados_descendente:
+                    print(paciente)
+            else:
+                print(f"No se encontraron pacientes con el atributo '{atributo_ordenar}'.")
+        
+        elif opcion == '17':
+            print("Realizar una búsqueda limitada a 10 registros")
+            
+            # Obtener los primeros 10 registros
+            registros_limitados = obtener_primeros_10_registros(db)
+            
+            if registros_limitados:
+                print(f"Se encontraron {len(registros_limitados)} registros limitados:")
+                for paciente in registros_limitados:
+                    print(paciente)
+            else:
+                print("No se encontraron registros.")
+        
+        elif opcion == '18':
+            print("Realizar una búsqueda por expresión regular")
+            
+            # Solicitar al usuario el campo y el patrón de búsqueda
+            campo = input("Ingrese el campo en el que desea realizar la búsqueda (por ejemplo, 'nombre', 'email'): ")
+            patron = input("Ingrese la expresión regular para filtrar (puede usar * o ? como comodines): ")
+            
+            # Llamar a la función de búsqueda por expresión regular
+            registros_regex = obtener_registros_por_regex(db, campo, patron)
+            
+            if registros_regex:
+                print(f"Se encontraron {len(registros_regex)} registros que coinciden con el patrón '{patron}':")
+                for paciente in registros_regex:
+                    print(paciente)
+            else:
+                print(f"No se encontraron registros que coincidan con el patrón '{patron}'.")
+                
+        elif opcion == '19':
+            # Filtrar enfermedades por síntomas
+            print("Filtrar enfermedades por síntomas")
+            sintomas = input("Ingrese los síntomas a filtrar (separados por coma): ")
+            
+            # Convertir la entrada de síntomas a una lista
+            lista_sintomas = [sintoma.strip() for sintoma in sintomas.split(",")]
+            
+            # Llamamos a la función para obtener las enfermedades
+            enfermedades = obtener_enfermedades_por_sintomas(db, lista_sintomas)
+            
+            if enfermedades:
+                print(f"Se encontraron {len(enfermedades)} enfermedades con los síntomas proporcionados:")
+                for enfermedad in enfermedades:
+                    print(enfermedad)
+            else:
+                print("No se encontraron enfermedades con los síntomas proporcionados.")
+        
+        elif opcion == '21':
+            # Insertar una nueva enfermedad
+            print("Insertar una nueva enfermedad")
+            
+            nombre = input("Nombre de la enfermedad: ")
+            descripcion = input("Descripción de la enfermedad: ")
+            sintomas = input("Síntomas de la enfermedad (separados por coma): ")
+            
+            # Convertir los síntomas a una lista
+            lista_sintomas = [sintoma.strip() for sintoma in sintomas.split(",")]
+            
+            tratamiento = input("Tratamiento recomendado (opcional): ")
+            if tratamiento == "":
+                tratamiento = None  # Si no se proporciona un tratamiento, se establece como None
+            
+            # Llamamos a la función para insertar la enfermedad en la base de datos
+            enfermedad_id = insertar_enfermedad(db, nombre, descripcion, lista_sintomas, tratamiento)
+            print(f"Enfermedad insertada con ID: {enfermedad_id}")
+        
+        elif opcion == '22':
             print("Saliendo...")
             break
-        
         else:
             print("Opción no válida.")
